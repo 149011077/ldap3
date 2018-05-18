@@ -5,6 +5,7 @@ OBJECT_CLASS = ['top', 'person', 'organizationalPerson', 'user']
 LDAP_BASE_DN = 'dc=aukeyis,dc=com'
 search_filter = "(displayName={0}*)"
 
+
 def conn_ad():
     server = Server('ldaps://10.1.1.2', use_ssl=True)
     conn = Connection(server, user="aukeyis\\zhangzp", password="zhangzp@888", auto_bind=True)
@@ -29,15 +30,16 @@ def get_dn(username):
 def get_groups(cn, ou):
     return '{0},{1},DC=aukeyis,DC=com'.format(cn, ou)
 
+
 def get_user_dn(username):
     conn = conn_ad()
-    # conn.search(search_base=LDAP_BASE_DN, search_filter=search_filter.format(username), search_scope=SUBTREE, attributes=ALL_ATTRIBUTES, get_operational_attributes=True)
     conn.search(search_base=LDAP_BASE_DN, search_filter="(objectclass=organizationalUnit)", search_scope=SUBTREE, attributes=ALL_ATTRIBUTES, get_operational_attributes=True)
     result = json.loads(conn.response_to_json())
     res = result["entries"][0]['dn']
     print(result)
     conn.unbind()
     return res
+
 
 def get_group_dn(groupname):
     conn = conn_ad()
@@ -91,6 +93,7 @@ def add_ou():
     print(res)
     conn.unbind()
 
+
 def add_group():
     conn = conn_ad()
     conn.add('cn=cctv,ou=it,ou=test,dc=aukeyis,dc=com','group')
@@ -101,7 +104,6 @@ def add_group():
 
 def get_all_ou(dn):
     conn = conn_ad()
-    # conn.search(search_base=LDAP_BASE_DN, search_filter=search_filter.format(username), search_scope=SUBTREE, attributes=ALL_ATTRIBUTES, get_operational_attributes=True)
     conn.search(search_base=dn, search_filter="(objectclass=organizationalUnit)", search_scope=LEVEL, attributes=ALL_ATTRIBUTES, get_operational_attributes=True)
     for entry in conn.response:
         result = ''
@@ -124,21 +126,22 @@ def get_all_user(dn):
             print(result)
     conn.unbind()
 
+
 def move_user():
     conn = conn_ad()
     res = conn.modify_dn('cn=user5,ou=it,ou=test,dc=aukeyis,dc=com', 'cn=user5', new_superior='ou=sys002,ou=its,ou=test,dc=aukeyis,dc=com')
     print(conn.result)
     conn.unbind()
 
-def modi():
+
+def mod_user():
     conn = conn_ad()
     conn.modify('cn=zmqq,ou=it,ou=test', {'givenName': [(MODIFY_REPLACE, ['givenname-zmqq'])]})
     print(conn.result)
     conn.unbind()
 
-def del_obj():
+def del_user():
     conn = conn_ad()
-    conn = Connection(s,user='zhangzp',password='zhangzp@888')
     conn.delete('cn=zmqq,ou=it,ou=test,dc=aukeyis,dc=com')
     print(conn.result)
     conn.unbind()
